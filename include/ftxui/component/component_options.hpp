@@ -1,6 +1,7 @@
 #ifndef FTXUI_COMPONENT_COMPONENT_OPTIONS_HPP
 #define FTXUI_COMPONENT_COMPONENT_OPTIONS_HPP
 
+#include <ftxui/component/animation.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/util/ref.hpp>
 
@@ -33,11 +34,43 @@ struct MenuEntryOption {
       Decorator(inverted) | bold;  ///< Style when selected and focused.
 };
 
-/// @brief Option for the Button component.
+/// @brief Option for the MenuEntryAnimated component.
+/// @ingroup component
+struct MenuEntryAnimatedOption {
+  Color foreground_color_focused = Color::White;
+  Color foreground_color = Color::GrayLight;
+  animation::Easing::Function foreground_color_animation_easing =
+      animation::Easing::QuadraticOut;
+  animation::Duration foreground_color_animation_duration =
+      std::chrono::milliseconds(250);
+
+  Color background_color_focused= Color::GrayDark;
+  Color background_color = Color::Black;
+  animation::Easing::Function background_color_animation_easing =
+      animation::Easing::QuadraticOut;
+  animation::Duration background_color_animation_duration =
+      std::chrono::milliseconds(250);
+};
+
+/// @brief Option for the AnimatedButton component.
 /// @ingroup component
 struct ButtonOption {
   /// Whether to show a border around the button.
   bool border = true;
+};
+
+/// @brief Option for the ButtonAnimatedOption component.
+/// @ingroup component
+struct ButtonAnimatedOption {
+  std::optional<BorderStyle> border = LIGHT;
+  Color foreground_color_focused = Color::White;
+  Color foreground_color = Color::GrayLight;
+
+  Color background_color_focused= Color::GrayDark;
+  Color background_color = Color::Black;
+  animation::Easing::Function animation_easing =
+      animation::Easing::QuadraticOut;
+  animation::Duration animation_duration = std::chrono::milliseconds(200);
 };
 
 /// @brief Option for the Checkbox component.

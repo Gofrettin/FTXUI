@@ -38,6 +38,9 @@ Component Tab(Components children, int* selector);
 Component Button(ConstStringRef label,
                  std::function<void()> on_click,
                  Ref<ButtonOption> = {});
+Component ButtonAnimated(ConstStringRef label,
+                         std::function<void()> on_click,
+                         Ref<ButtonAnimatedOption> = {});
 Component Checkbox(ConstStringRef label,
                    bool* checked,
                    Ref<CheckboxOption> option = {});
@@ -48,6 +51,8 @@ Component Menu(ConstStringListRef entries,
                int* selected_,
                Ref<MenuOption> = {});
 Component MenuEntry(ConstStringRef label, Ref<MenuEntryOption> = {});
+Component MenuEntryAnimated(ConstStringRef label,
+                            Ref<MenuEntryAnimatedOption> = {});
 Component Dropdown(ConstStringListRef entries, int* selected);
 Component Radiobox(ConstStringListRef entries,
                    int* selected_,

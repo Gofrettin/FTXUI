@@ -13,22 +13,23 @@ using namespace ftxui;
 int main(int argc, const char* argv[]) {
   int value = 50;
 
+  ButtonAnimatedOption opt;
   // The tree of components. This defines how to navigate using the keyboard.
   auto buttons = Container::Horizontal({
-      Button("Decrease", [&] { value--; }),
-      Button("Increase", [&] { value++; }),
+      ButtonAnimated("Decrease", [&] { value--; }),
+      ButtonAnimated("Increase", [&] { value++; }),
   });
 
   // Modify the way to render them on screen:
   auto component = Renderer(buttons, [&] {
     return vbox({
-               text("value = " + std::to_string(value)),
-               separator(),
-               gauge(value * 0.01f),
-               separator(),
-               buttons->Render(),
-           }) |
-           border;
+        vbox({
+            text("value = " + std::to_string(value)),
+            separator(),
+            gauge(value * 0.01f),
+        }) | border,
+        buttons->Render(),
+    });
   });
 
   auto screen = ScreenInteractive::FitComponent();

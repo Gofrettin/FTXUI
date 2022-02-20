@@ -23,10 +23,14 @@ class ScreenInteractivePrivate;
 
 class ScreenInteractive : public Screen {
  public:
+  // Constructors:
   static ScreenInteractive FixedSize(int dimx, int dimy);
   static ScreenInteractive Fullscreen();
   static ScreenInteractive FitComponent();
   static ScreenInteractive TerminalOutput();
+
+  // Return the currently active screen, nullptr if none.
+  static ScreenInteractive* Active();
 
   void Loop(Component);
   Closure ExitLoopClosure();
@@ -72,6 +76,7 @@ class ScreenInteractive : public Screen {
 
   std::atomic<bool> quit_ = false;
   std::thread event_listener_;
+  std::thread animation_listener_;
 
   int cursor_x_ = 1;
   int cursor_y_ = 1;

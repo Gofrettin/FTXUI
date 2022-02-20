@@ -5,6 +5,7 @@
 #include <utility>     // for move
 #include <vector>      // for vector
 
+#include "ftxui/component/animation.hpp"  // for Ref, ConstStringListRef, ConstStringRef
 #include "ftxui/component/captured_mouse.hpp"  // for CapturedMouse
 #include "ftxui/component/component.hpp"       // for Make, Menu, MenuEntry
 #include "ftxui/component/component_base.hpp"  // for ComponentBase
@@ -232,6 +233,78 @@ Component MenuEntry(ConstStringRef label, Ref<MenuEntryOption> option) {
     Ref<MenuEntryOption> option_;
     Box box_;
     bool hovered_ = false;
+  };
+
+  return Make<Impl>(std::move(label), std::move(option));
+}
+
+Component MenuEntryAnimated(ConstStringRef label,
+                            Ref<MenuEntryAnimatedOption> option) {
+  class Impl : public ComponentBase {
+   public:
+    Impl(ConstStringRef label, Ref<MenuEntryAnimatedOption> option)
+        : label_(std::move(label)), option_(std::move(option)) {}
+
+   private:
+    Element Render() override {
+      bool focused = Focused();
+
+      float target = focused ? 1.0f : hovered_ ? 0.5f : 0.0f;
+      if (target != animator_background_.to()) {
+        animator_background_ =
+            animation::Animator(&animation_background_, target,
+                                option_->background_color_animation_duration,
+                                option_->background_color_animation_easing);
+        animator_foreground_ =
+            animation::Animator(&animation_foreground_, target,
+                                option_->foreground_color_animation_duration,
+                                option_->foreground_color_animation_easing);
+      }
+
+      auto style = color(Color::Interpolate(
+                       animation_foreground_, option_->foreground_color,
+                       option_->foreground_color_focused)) |
+                   bgcolor(Color::Interpolate(
+                       animation_background_, option_->background_color,
+                       option_->background_color_focused));
+      auto focus_management = focused ? select : nothing;
+      return text(*label_) | style | focus_management | reflect(box_);
+    }
+    bool Focusable() const override { return true; }
+    bool OnEvent(Event event) override {
+      if (!event.is_mouse())
+        return false;
+
+      hovered_ = box_.Contain(event.mouse().x, event.mouse().y);
+
+      if (!hovered_)
+        return false;
+
+      if (event.mouse().button == Mouse::Left &&
+          event.mouse().motion == Mouse::Released) {
+        TakeFocus();
+        return true;
+      }
+
+      return false;
+    }
+
+    void OnAnimation(animation::Params& params) override {
+      animator_background_.OnAnimation(params);
+      animator_foreground_.OnAnimation(params);
+    }
+
+    ConstStringRef label_;
+    Ref<MenuEntryAnimatedOption> option_;
+    Box box_;
+    bool hovered_ = false;
+
+    float animation_background_ = 0.f;
+    float animation_foreground_ = 0.f;
+    animation::Animator animator_background_ =
+        animation::Animator(&animation_background_, 0.f);
+    animation::Animator animator_foreground_ =
+        animation::Animator(&animation_foreground_, 0.f);
   };
 
   return Make<Impl>(std::move(label), std::move(option));

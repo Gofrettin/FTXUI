@@ -101,6 +101,15 @@ bool ComponentBase::OnEvent(Event event) {
   return false;
 }
 
+/// @brief Called in response to an animation event.
+/// @param animation_params the parameters of the animation
+/// The default implementation dispatch the event to every child.
+/// @ingroup component
+void ComponentBase::OnAnimation(animation::Params& params) {
+  for (Component& child : children_)
+    child->OnAnimation(params);
+}
+
 /// @brief Return the currently Active child.
 /// @return the currently Active child.
 /// @ingroup component

@@ -13,24 +13,18 @@ using namespace ftxui;
 // An example of how to compose multiple components into one and maintain their
 // interactiveness.
 int main(int argc, const char* argv[]) {
-  auto button_option = ButtonOption();
-  button_option.border = false;
 
   auto left_count = 0;
   auto right_count = 0;
 
   auto left_buttons = Container::Horizontal({
-      Button(
-          "[Decrease]", [&] { left_count--; }, &button_option),
-      Button(
-          "[Increase]", [&] { left_count++; }, &button_option),
+      Button("Decrease", [&] { left_count--; }),
+      Button("Increase", [&] { left_count++; }),
   });
 
   auto right_buttons = Container::Horizontal({
-      Button(
-          "[Decrease]", [&] { right_count--; }, &button_option),
-      Button(
-          "[Increase]", [&] { right_count++; }, &button_option),
+      Button("Decrease", [&] { right_count--; }),
+      Button("Increase", [&] { right_count++; }),
   });
 
   // Renderer decorates its child with a new rendering function. The way the

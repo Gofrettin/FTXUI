@@ -12,6 +12,7 @@
 #include <variant>      // for visit
 #include <vector>       // for vector
 
+#include "ftxui/component/animation.hpp"  // for Event
 #include "ftxui/component/captured_mouse.hpp"  // for CapturedMouse, CapturedMouseInterface
 #include "ftxui/component/component_base.hpp"  // for ComponentBase
 #include "ftxui/component/event.hpp"           // for Event
@@ -236,6 +237,13 @@ class CapturedMouseImpl : public CapturedMouseInterface {
   std::function<void(void)> callback_;
 };
 
+void AnimationListener(std::atomic<bool>* quit, Sender<Task> out) {
+  while (!*quit) {
+    out->Send(AnimationTask());
+    std::this_thread::sleep_for(std::chrono::milliseconds(33));
+  }
+}
+
 }  // namespace
 
 ScreenInteractive::ScreenInteractive(int dimx,
@@ -328,6 +336,11 @@ Closure ScreenInteractive::WithRestoredIO(Closure fn) {
     fn();
     Install();
   };
+}
+
+// static
+ScreenInteractive* ScreenInteractive::Active() {
+  return g_active_screen;
 }
 
 void ScreenInteractive::Install() {
@@ -432,16 +445,20 @@ void ScreenInteractive::Install() {
   task_sender_ = task_receiver_->MakeSender();
   event_listener_ =
       std::thread(&EventListener, &quit_, task_receiver_->MakeSender());
+  animation_listener_ =
+      std::thread(&AnimationListener, &quit_, task_receiver_->MakeSender());
 }
 
 void ScreenInteractive::Uninstall() {
   ExitLoopClosure()();
   event_listener_.join();
+  animation_listener_.join();
 
   OnExit(0);
 }
 
 void ScreenInteractive::Main(Component component) {
+  animation::TimePoint previous_animation_time = animation::Clock::now();
   while (!quit_) {
     if (!task_receiver_->HasPending()) {
       Draw(component);
@@ -476,8 +493,20 @@ void ScreenInteractive::Main(Component component) {
           }
 
           // Handle callback
-          if constexpr (std::is_same_v<T, Closure>)
+          if constexpr (std::is_same_v<T, Closure>) {
             arg();
+            return;
+          }
+
+          // Handle Animation
+          if constexpr (std::is_same_v<T, AnimationTask>) {
+            animation::TimePoint now = animation::Clock::now();
+            animation::Duration delta = now - previous_animation_time;
+            previous_animation_time = now;
+
+            animation::Params params(delta);
+            component->OnAnimation(params);
+          }
         },
         task);
   }
