@@ -9,6 +9,7 @@
 #include <utility>  // for move
 #include <vector>   // for vector
 
+#include "../dom/color_info_sorted_2d.ipp"     // for ColorInfoSorted2D
 #include "ftxui/component/captured_mouse.hpp"  // for ftxui
 #include "ftxui/component/component.hpp"  // for Checkbox, Renderer, Horizontal, Vertical, Input, Menu, Radiobox, ResizableSplitLeft, Tab, Toggle
 #include "ftxui/component/component_base.hpp"     // for ComponentBase
@@ -95,7 +96,7 @@ int main(int argc, const char* argv[]) {
                separator(),
                ram | flex,
            }) |
-           flex | border;
+           flex;
   });
 
   // ---------------------------------------------------------------------------
@@ -255,7 +256,7 @@ int main(int argc, const char* argv[]) {
                }) | size(HEIGHT, LESS_THAN, 8),
                hflow(render_command()) | flex_grow,
            }) |
-           flex_grow | border;
+           flex_grow;
   });
 
   // ---------------------------------------------------------------------------
@@ -267,54 +268,105 @@ int main(int argc, const char* argv[]) {
       entries.push_back(spinner(i, shift / 2) | bold |
                         size(WIDTH, GREATER_THAN, 2) | border);
     }
-    return hflow(std::move(entries)) | border;
+    return hflow(std::move(entries));
   });
 
   // ---------------------------------------------------------------------------
   // Colors
   // ---------------------------------------------------------------------------
   auto color_tab_renderer = Renderer([] {
+    auto basic_color_display = vbox({
+        text("16 color palette:"),
+        separator(),
+        hbox({
+            vbox({
+                color(Color::Default, text("Default")),
+                color(Color::Black, text("Black")),
+                color(Color::GrayDark, text("GrayDark")),
+                color(Color::GrayLight, text("GrayLight")),
+                color(Color::White, text("White")),
+                color(Color::Blue, text("Blue")),
+                color(Color::BlueLight, text("BlueLight")),
+                color(Color::Cyan, text("Cyan")),
+                color(Color::CyanLight, text("CyanLight")),
+                color(Color::Green, text("Green")),
+                color(Color::GreenLight, text("GreenLight")),
+                color(Color::Magenta, text("Magenta")),
+                color(Color::MagentaLight, text("MagentaLight")),
+                color(Color::Red, text("Red")),
+                color(Color::RedLight, text("RedLight")),
+                color(Color::Yellow, text("Yellow")),
+                color(Color::YellowLight, text("YellowLight")),
+            }),
+            vbox({
+                bgcolor(Color::Default, text("Default")),
+                bgcolor(Color::Black, text("Black")),
+                bgcolor(Color::GrayDark, text("GrayDark")),
+                bgcolor(Color::GrayLight, text("GrayLight")),
+                bgcolor(Color::White, text("White")),
+                bgcolor(Color::Blue, text("Blue")),
+                bgcolor(Color::BlueLight, text("BlueLight")),
+                bgcolor(Color::Cyan, text("Cyan")),
+                bgcolor(Color::CyanLight, text("CyanLight")),
+                bgcolor(Color::Green, text("Green")),
+                bgcolor(Color::GreenLight, text("GreenLight")),
+                bgcolor(Color::Magenta, text("Magenta")),
+                bgcolor(Color::MagentaLight, text("MagentaLight")),
+                bgcolor(Color::Red, text("Red")),
+                bgcolor(Color::RedLight, text("RedLight")),
+                bgcolor(Color::Yellow, text("Yellow")),
+                bgcolor(Color::YellowLight, text("YellowLight")),
+            }),
+        }),
+    });
+
+    auto palette_256_color_display = text("256 colors palette:");
+    {
+      std::vector<std::vector<ColorInfo>> info_columns = ColorInfoSorted2D();
+      Elements columns;
+      for (auto& column : info_columns) {
+        Elements column_elements;
+        for (auto& it : column) {
+          column_elements.push_back(
+              text("   ") | bgcolor(Color(Color::Palette256(it.index_256))));
+        }
+        columns.push_back(hbox(std::move(column_elements)));
+      }
+      palette_256_color_display = vbox({
+          palette_256_color_display,
+          separator(),
+          vbox(columns),
+      });
+    }
+
+    // True color display.
+    auto true_color_display = text("TrueColors: 24bits:");
+    {
+      int saturation = 255;
+      Elements array;
+      for (int value = 0; value < 255; value += 16) {
+        Elements line;
+        for (int hue = 0; hue < 255; hue += 6) {
+          line.push_back(text("▀")                                    //
+                         | color(Color::HSV(hue, saturation, value))  //
+                         | bgcolor(Color::HSV(hue, saturation, value + 8)));
+        }
+        array.push_back(hbox(std::move(line)));
+      }
+      true_color_display = vbox({
+          true_color_display,
+          separator(),
+          vbox(std::move(array)),
+      });
+    }
+
     return hbox({
-               vbox({
-                   color(Color::Default, text("Default")),
-                   color(Color::Black, text("Black")),
-                   color(Color::GrayDark, text("GrayDark")),
-                   color(Color::GrayLight, text("GrayLight")),
-                   color(Color::White, text("White")),
-                   color(Color::Blue, text("Blue")),
-                   color(Color::BlueLight, text("BlueLight")),
-                   color(Color::Cyan, text("Cyan")),
-                   color(Color::CyanLight, text("CyanLight")),
-                   color(Color::Green, text("Green")),
-                   color(Color::GreenLight, text("GreenLight")),
-                   color(Color::Magenta, text("Magenta")),
-                   color(Color::MagentaLight, text("MagentaLight")),
-                   color(Color::Red, text("Red")),
-                   color(Color::RedLight, text("RedLight")),
-                   color(Color::Yellow, text("Yellow")),
-                   color(Color::YellowLight, text("YellowLight")),
-               }),
-               vbox({
-                   bgcolor(Color::Default, text("Default")),
-                   bgcolor(Color::Black, text("Black")),
-                   bgcolor(Color::GrayDark, text("GrayDark")),
-                   bgcolor(Color::GrayLight, text("GrayLight")),
-                   bgcolor(Color::White, text("White")),
-                   bgcolor(Color::Blue, text("Blue")),
-                   bgcolor(Color::BlueLight, text("BlueLight")),
-                   bgcolor(Color::Cyan, text("Cyan")),
-                   bgcolor(Color::CyanLight, text("CyanLight")),
-                   bgcolor(Color::Green, text("Green")),
-                   bgcolor(Color::GreenLight, text("GreenLight")),
-                   bgcolor(Color::Magenta, text("Magenta")),
-                   bgcolor(Color::MagentaLight, text("MagentaLight")),
-                   bgcolor(Color::Red, text("Red")),
-                   bgcolor(Color::RedLight, text("RedLight")),
-                   bgcolor(Color::Yellow, text("Yellow")),
-                   bgcolor(Color::YellowLight, text("YellowLight")),
-               }),
-           }) |
-           hcenter | border;
+        basic_color_display,
+        text(" "),
+        palette_256_color_display,
+        text(" "),
+        true_color_display,
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -348,8 +400,7 @@ int main(int argc, const char* argv[]) {
                render_gauge(2222) | color(Color::RedLight),
                render_gauge(220) | color(Color::Yellow),
                render_gauge(348) | color(Color::YellowLight),
-           }) |
-           border;
+           });
   });
 
   // ---------------------------------------------------------------------------
@@ -420,7 +471,7 @@ int main(int argc, const char* argv[]) {
                          &paragraph_renderer_split_position);
   auto paragraph_renderer_group_renderer =
       Renderer(paragraph_renderer_group,
-               [&] { return paragraph_renderer_group->Render() | border; });
+               [&] { return paragraph_renderer_group->Render(); });
 
   // ---------------------------------------------------------------------------
   // Tabs
@@ -430,7 +481,10 @@ int main(int argc, const char* argv[]) {
   std::vector<std::string> tab_entries = {
       "htop", "color", "spinner", "gauge", "compiler", "paragraph",
   };
-  auto tab_selection = Toggle(&tab_entries, &tab_index);
+  ToggleAnimatedUnderlineOption option;
+  option.SetUnderlineAnimationFunction(animation::easing::BackOut);
+  auto tab_selection =
+      ToggleAnimatedUnderline(&tab_entries, &tab_index, option);
   auto tab_content = Container::Tab(
       {
           htop,
@@ -450,7 +504,7 @@ int main(int argc, const char* argv[]) {
   auto main_renderer = Renderer(main_container, [&] {
     return vbox({
         text("FTXUI Demo") | bold | hcenter,
-        tab_selection->Render() | hcenter,
+        tab_selection->Render(),
         tab_content->Render() | flex,
     });
   });

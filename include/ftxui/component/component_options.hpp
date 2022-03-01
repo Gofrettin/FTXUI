@@ -39,15 +39,15 @@ struct MenuEntryOption {
 struct MenuEntryAnimatedOption {
   Color foreground_color_focused = Color::White;
   Color foreground_color = Color::GrayLight;
-  animation::Easing::Function foreground_color_animation_easing =
-      animation::Easing::QuadraticOut;
+  animation::easing::Function foreground_color_animation_easing =
+      animation::easing::QuadraticOut;
   animation::Duration foreground_color_animation_duration =
       std::chrono::milliseconds(250);
 
   Color background_color_focused= Color::GrayDark;
   Color background_color = Color::Black;
-  animation::Easing::Function background_color_animation_easing =
-      animation::Easing::QuadraticOut;
+  animation::easing::Function background_color_animation_easing =
+      animation::easing::QuadraticOut;
   animation::Duration background_color_animation_duration =
       std::chrono::milliseconds(250);
 };
@@ -68,8 +68,8 @@ struct ButtonAnimatedOption {
 
   Color background_color_focused= Color::GrayDark;
   Color background_color = Color::Black;
-  animation::Easing::Function animation_easing =
-      animation::Easing::QuadraticOut;
+  animation::easing::Function animation_easing =
+      animation::easing::QuadraticOut;
   animation::Duration animation_duration = std::chrono::milliseconds(200);
 };
 
@@ -136,6 +136,53 @@ struct ToggleOption {
   std::function<void()> on_enter = [] {};
 
   Ref<int> focused_entry = 0;
+};
+
+/// @brief Option for the Toggle component.
+/// @ingroup component
+struct ToggleAnimatedUnderlineOption : ToggleOption {
+  Color underline_color = Color::GrayDark;
+  Color underline_color_active = Color::White;
+
+  animation::easing::Function underline_animation_leader_function =
+      animation::easing::QuadraticInOut;
+  animation::Duration underline_animation_leader_duration =
+      std::chrono::milliseconds(200);
+  animation::Duration underline_animation_leader_delay =
+      std::chrono::milliseconds(0);
+
+  animation::easing::Function underline_animation_follower_function =
+      animation::easing::QuadraticInOut;
+  animation::Duration underline_animation_follower_duration =
+      std::chrono::milliseconds(200);
+  animation::Duration underline_animation_follower_delay =
+      std::chrono::milliseconds(0);
+
+  std::function<Element()> element_left = [] { return emptyElement(); };
+  std::function<Element()> element_middle = [] { return text(" "); };
+  std::function<Element()> element_right = [] { return emptyElement(); };
+
+  void SetUnderlineAnimation(animation::Duration d,
+                             animation::easing::Function f) {
+    SetUnderlineAnimationDuration(d);
+    SetUnderlineAnimationFunction(f);
+  }
+
+  void SetUnderlineAnimationDuration(animation::Duration d) {
+    underline_animation_leader_duration = d;
+    underline_animation_follower_duration = d;
+  }
+
+  void SetUnderlineAnimationFunction(animation::easing::Function f) {
+    underline_animation_leader_function = f;
+    underline_animation_follower_function = f;
+  }
+
+  void SetUnderlineAnimationFunction(animation::easing::Function f_leader,
+                                     animation::easing::Function f_follower) {
+    underline_animation_leader_function = f_leader;
+    underline_animation_follower_function = f_follower;
+  }
 };
 
 }  // namespace ftxui

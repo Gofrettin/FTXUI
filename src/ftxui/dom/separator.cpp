@@ -369,6 +369,69 @@ Element separator(Pixel pixel) {
   return std::make_shared<SeparatorWithPixel>(pixel);
 }
 
+/// @brief Draw an horizontal bar, with the area in between left/right.
+///
+/// ### Example
+///
+/// ```cpp
+/// Element document = separator(2,5, Color::White, Color::Blue);
+/// ```
+Element separatorHSelector(float left,
+                           float right,
+                           Color selected_color,
+                           Color unselected_color) {
+  class Impl : public Node {
+   public:
+    Impl(float left, float right, Color selected_color, Color unselected_color)
+        : left_(left),
+          right_(right),
+          selected_color_(selected_color),
+          unselected_color_(unselected_color) {}
+    void ComputeRequirement() override {
+      requirement_.min_x = 1;
+      requirement_.min_y = 1;
+    }
+
+    void Render(Screen& screen) override {
+      if (box_.y_max < box_.y_min)
+        return;
+
+      // This are the two location with an empty demi-cell.
+      int demi_cell_left = left_ * 2 - 1;
+      int demi_cell_right = right_ * 2 + 2;
+
+      int y = box_.y_min;
+      for (int x = box_.x_min; x <= box_.x_max; ++x) {
+        Pixel& pixel = screen.PixelAt(x, y);
+
+        int a = (x - box_.x_min) * 2;
+        int b = a + 1;
+        bool a_empty = demi_cell_left == a || demi_cell_right == a;
+        bool b_empty = demi_cell_left == b || demi_cell_right == b;
+
+        if (!a_empty && !b_empty) {
+          pixel.character = "─";
+          pixel.automerge = true;
+        } else {
+          pixel.character = a_empty ? "╶" : "╴";
+          pixel.automerge = false;
+        }
+
+        if (demi_cell_left <= a && b <= demi_cell_right)
+          pixel.foreground_color = selected_color_;
+        else
+          pixel.foreground_color = unselected_color_;
+      }
+    }
+
+    float left_;
+    float right_;
+    Color selected_color_;
+    Color unselected_color_;
+  };
+  return std::make_shared<Impl>(left, right, selected_color, unselected_color);
+}
+
 }  // namespace ftxui
 
 // Copyright 2020 Arthur Sonzogni. All rights reserved.

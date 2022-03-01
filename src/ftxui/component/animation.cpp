@@ -5,7 +5,7 @@
 namespace ftxui {
 namespace animation {
 
-namespace Easing {
+namespace easing {
 // Easing function have been taken out of:
 // https://github.com/warrenm/AHEasing/blob/master/AHEasing/easing.c
 //
@@ -250,21 +250,28 @@ float BounceInOut(float p) {
 Animator::Animator(float* from,
                    float to,
                    Duration duration,
-                   Easing::Function easing_function)
+                   easing::Function easing_function,
+                   Duration delay)
     : value_(from),
       from_(*from),
       to_(to),
       duration_(duration),
       easing_function_(easing_function),
-      current_() {}
+      current_(-delay) {}
 
 void Animator::OnAnimation(Params& params) {
   current_ += params.duration();
+  if (current_ <= Duration()) {
+    *value_ = from_;
+    return;
+  }
+
   if (current_ >= duration_) {
     *value_ = to_;
-  } else {
-    *value_ = from_ + (to_ - from_) * easing_function_(current_ / duration_);
+    return;
   }
+
+  *value_ = from_ + (to_ - from_) * easing_function_(current_ / duration_);
 }
 
 }  // namespace animation

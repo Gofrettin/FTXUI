@@ -42,6 +42,10 @@ Element separatorEmpty();
 Element separatorStyled(BorderStyle);
 Element separator(Pixel);
 Element separatorCharacter(std::string);
+Element separatorHSelector(float left,
+                           float right,
+                           Color background,
+                           Color foreground);
 Element gauge(float ratio);
 Element gaugeLeft(float ratio);
 Element gaugeRight(float ratio);

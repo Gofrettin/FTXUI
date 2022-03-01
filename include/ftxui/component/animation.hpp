@@ -30,7 +30,7 @@ class Params {
   Duration duration_;
 };
 
-namespace Easing {
+namespace easing {
 using Function = std::function<float(float)>;
 // Linear interpolation (no easing)
 float Linear(float p);
@@ -84,14 +84,15 @@ float BackInOut(float p);
 float BounceIn(float p);
 float BounceOut(float p);
 float BounceInOut(float p);
-}  // namespace Easing
+}  // namespace easing
 
 class Animator {
   public:
    Animator(float* from,
             float to = 0.f,
             Duration duration = std::chrono::milliseconds(250),
-            Easing::Function easing_function = Easing::Linear);
+            easing::Function easing_function = easing::Linear,
+            Duration delay = std::chrono::milliseconds(0));
 
    void OnAnimation(Params&);
 
@@ -101,7 +102,7 @@ class Animator {
    float from_;
    float to_;
    Duration duration_;
-   Easing::Function easing_function_;
+   easing::Function easing_function_;
    Duration current_;
 };
 

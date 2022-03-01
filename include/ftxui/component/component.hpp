@@ -60,6 +60,10 @@ Component Radiobox(ConstStringListRef entries,
 Component Toggle(ConstStringListRef entries,
                  int* selected,
                  Ref<ToggleOption> option = {});
+Component ToggleAnimatedUnderline(
+    ConstStringListRef entries,
+    int* selected,
+    Ref<ToggleAnimatedUnderlineOption> option = {});
 template <class T>  // T = {int, float, long}
 Component Slider(ConstStringRef label, T* value, T min, T max, T increment);
 Component ResizableSplitLeft(Component main, Component back, int* main_size);
